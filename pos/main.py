@@ -160,4 +160,4 @@ if __name__ == '__main__':
             print('[Epoch: {:>4}] cost = {:>.6} Accuracy = {:>.6}'.format(epoch + 1, avg_cost, avg_correct))
             f1Measure, precision, recall = calculation_measure(precision_count, recall_count)
             print('[Train] F1Measure : {:.6f} Precision : {:.6f} Recall : {:.6f}'.format(f1Measure, precision, recall))
-            save(sess, epoch)
+            save(sess, parameter['output_dir'])
