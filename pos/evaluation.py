@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import numpy as np
 import argparse
+
+import numpy as np
 
 
 def diff_model_label(dataset, precision, recall, models, labels, seq_len):
@@ -8,12 +9,11 @@ def diff_model_label(dataset, precision, recall, models, labels, seq_len):
     # recall = np.array([ 0. , 0. ]) # 실제 태깅한 NER 태그 중에 정답 갯수
     reverse_tag = {v: k for k, v in dataset.necessary_data["ner_tag"].items()}
     for index, model, label in zip(range(0, len(models)), models, labels):
-        modelAnswer = get_ner_tag_list_by_numeric(reverse_tag, model, seq_len[index])
-        labelAnswer = get_ner_tag_list_by_numeric(reverse_tag, label, seq_len[index])
+        modelAnswer = get_pos_tags(reverse_tag, model, seq_len[index])
+        labelAnswer = get_pos_tags(reverse_tag, label, seq_len[index])
 
         recall += calculation_correct(modelAnswer, labelAnswer)
         precision += calculation_correct(labelAnswer, modelAnswer)
-
     return precision, recall
 
 
@@ -35,6 +35,7 @@ def calculation_measure(precision, recall):
 
     return f1Measure, precisionRate, recallRate
 
+
 def get_ner_bi_tag_list_in_sentence(reverse_tag, result, max_len):
     nerAnswer = []
     for m in result[:max_len]:
@@ -44,6 +45,7 @@ def get_ner_bi_tag_list_in_sentence(reverse_tag, result, max_len):
         else:
             nerAnswer.append(nerTag)
     return nerAnswer
+
 
 def get_ner_tag_list_by_numeric(reverse_tag, result, max_len):
     nerAnswer = []
@@ -63,6 +65,10 @@ def get_ner_tag_list_by_numeric(reverse_tag, result, max_len):
                 nerRange = i
             nerPrev = nerTag
     return nerAnswer
+
+
+def get_pos_tags(reverse_vocab, result, max_len):
+    return [reverse_vocab[tag_id] for tag_id in result[:max_len]]
 
 
 def get_ner_tag_list_by_string(results):
@@ -87,13 +93,13 @@ def get_ner_tag_list_by_string(results):
         nerAnswers.append(nerAnswer)
     return nerAnswers
 
+
 def read_prediction(prediction_file):
     pred_array = []
     for line in open(prediction_file, "r", encoding="utf-8"):
         line = line.strip()
         line = eval(line)
         pred_array.append(line)
-
     return pred_array
 
 
