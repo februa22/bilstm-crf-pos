@@ -63,6 +63,7 @@ class Dataset:
 
         # 존재하는 형태소 별 NER 품사 태그 비율 사전
         necessary_data["ner_morph_tag"] = self._necessary_data_sorting_and_reverse_dict(necessary_data["ner_morph_tag"], start=0, ner=True)
+        self.necessary_data["ner_morph_tag"] = necessary_data["ner_morph_tag"]
 
         with open(self.parameter["necessary_file"], 'wb') as f:
             pickle.dump(necessary_data, f)
@@ -157,9 +158,10 @@ class Dataset:
             if "UNK" in dict:
                 return dict["UNK"]
             else:
-                temp = [0.0] * int(self.parameter["n_class"] / 2)
-                temp[0] = 1.0
-                return temp
+                # temp = [0.0] * int(self.parameter["n_class"] / 2)
+                # temp[0] = 1.0
+                # return temp
+                raise ValueError(f'len(dict)={len(dict)}, [*dict.keys()][:5]={[*dict.keys()][:5]}, key={key}')
 
     def _read_data_file(self, pre=True, extern_data=None):
         if extern_data is not None:
