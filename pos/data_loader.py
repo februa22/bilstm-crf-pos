@@ -34,22 +34,9 @@ def data_loader(root_path):
     return _read_data_file(file_path)
 
 
-def load_train_data(root_path):
+def load_data(path):
     # [ idx, ejeols, nemed_entitis ] each sentence
-    file_path = os.path.join(root_path, 'train_data')
-    return _read_data_file(file_path)
-
-
-def load_dev_data(root_path):
-    # [ idx, ejeols, nemed_entitis ] each sentence
-    file_path = os.path.join(root_path, 'dev_data')
-    return _read_data_file(file_path)
-
-
-def load_test_data(root_path):
-    # [ idx, ejeols, nemed_entitis ] each sentence
-    file_path = os.path.join(root_path, 'test_data')
-    return _read_data_file(file_path)
+    return _read_data_file(path)
 
 
 if __name__ == "__main__":

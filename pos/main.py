@@ -8,7 +8,7 @@ import tensorflow as tf
 
 from dataset_batch import Dataset
 from data_loader import data_loader
-from data_loader import load_train_data
+from data_loader import load_data
 from evaluation import calculation_measure
 from evaluation import diff_model_label
 from evaluation import get_ner_bi_tag_list_in_sentence
@@ -137,12 +137,16 @@ if __name__ == '__main__':
         parser.print_help()
         sys.exit(0)
 
+    data_dir = parameter['input_dir']
+    trainset_filepath = os.path.join(data_dir, 'pos_sejong800k.train.conll')
+    devset_filepath = os.path.join(data_dir, 'pos_sejong800k.dev.conll')
+    testset_filepath = os.path.join(data_dir, 'pos_sejong800k.test.conll')
     # 전체 데이터셋 가져옴
-    DATASET_PATH = 'data'
-    train_data = load_train_data(DATASET_PATH)
+    train_data = load_data(trainset_filepath)
+    dev_data = load_data(devset_filepath)
 
     # 가져온 문장별 데이터셋을 이용해서 각종 정보 및 학습셋 구성
-    dataset = Dataset(parameter, train_data)
+    dataset = Dataset(parameter, train_data + dev_data)
 
     # Model 불러오기
     model = Model(dataset.parameter)
