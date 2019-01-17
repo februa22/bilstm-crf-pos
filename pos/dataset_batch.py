@@ -158,10 +158,10 @@ class Dataset:
             if "UNK" in dict:
                 return dict["UNK"]
             else:
-                # temp = [0.0] * int(self.parameter["n_class"] / 2)
-                # temp[0] = 1.0
-                # return temp
-                raise ValueError(f'len(dict)={len(dict)}, [*dict.keys()][:5]={[*dict.keys()][:5]}, key={key}')
+                # raise ValueError(f'len(dict)={len(dict)}, [*dict.keys()][:5]={[*dict.keys()][:5]}, key={key}')
+                temp = [0.0] * int(self.parameter["n_class"] / 2)
+                temp[0] = 1.0
+                return temp
 
     def _read_data_file(self, pre=True, extern_data=None):
         if extern_data is not None:
@@ -200,7 +200,7 @@ class Dataset:
             if not data in dict:
                 dict[data] = value
         elif type(value) is str:
-            if not value in dict:
+            if not data in dict:
                 dict[data] = {value: 1}
             else:
                 if value in dict[data]:
