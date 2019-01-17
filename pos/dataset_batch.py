@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
+import operator
+import os
+import pickle
+import re
+import sys
 
 import numpy as np
-import os
-import re
-import operator
-import pickle
-import sys
+
 
 class Dataset:
     def __init__(self, parameter, extern_data):
@@ -39,15 +40,13 @@ class Dataset:
             if type(ner_tag) is list:
                 for ne in ner_tag:
                     if ne == "-": continue
-                    self._check_dictionary(necessary_data["ner_tag"], ne + "_B")
-                    self._check_dictionary(necessary_data["ner_tag"], ne + "_I")
+                    self._check_dictionary(necessary_data["ner_tag"], ne)
             else:
-                self._check_dictionary(necessary_data["ner_tag"], ner_tag + "_B")
-                self._check_dictionary(necessary_data["ner_tag"], ner_tag + "_I")
+                self._check_dictionary(necessary_data["ner_tag"], ner_tag)
 
             for nerMor, nerTag in zip(ner_mor_list, ner_tag_list):
                 if nerTag == "-" or nerTag == "-_B": continue
-                nerTag = nerTag.split("_")[0]
+                # nerTag = nerTag.split("_")[0]
                 self._check_dictionary(necessary_data["ner_morph_tag"], nerMor, nerTag)
 
         # 존재하는 어절 사전
@@ -57,7 +56,7 @@ class Dataset:
         necessary_data["character"] = self._necessary_data_sorting_and_reverse_dict(necessary_data["character"], start=2)
 
         # 존재하는 NER 품사 태그 사전
-        necessary_data["ner_tag"] = self._necessary_data_sorting_and_reverse_dict(necessary_data["ner_tag"], start=2, unk=False)
+        necessary_data["ner_tag"] = self._necessary_data_sorting_and_reverse_dict(necessary_data["ner_tag"], start=1, unk=False)
         self.ner_tag_size = len(necessary_data["ner_tag"])
         self.necessary_data = necessary_data
 
@@ -98,7 +97,7 @@ class Dataset:
                     temp[2] += ner_tag
             else:
                 morph = [0] * self.parameter["sentence_length"]
-                ne_dict = [[0.] * int(self.parameter["n_class"] / 2)] * self.parameter["sentence_length"]
+                ne_dict = [[0.] * int(self.parameter["n_class"])] * self.parameter["sentence_length"]
                 character = [[0] * self.parameter["word_length"]] * self.parameter["sentence_length"]
                 character_length = [0] * self.parameter["sentence_length"]
                 label = [0] * self.parameter["sentence_length"]
@@ -159,7 +158,7 @@ class Dataset:
                 return dict["UNK"]
             else:
                 # raise ValueError(f'len(dict)={len(dict)}, [*dict.keys()][:5]={[*dict.keys()][:5]}, key={key}')
-                temp = [0.0] * int(self.parameter["n_class"] / 2)
+                temp = [0.0] * int(self.parameter["n_class"])
                 temp[0] = 1.0
                 return temp
 
@@ -223,9 +222,9 @@ class Dataset:
 
         for key in sorted(dict.items(), key=operator.itemgetter(0), reverse=False):
             if ner:
-                items = np.zeros(int(self.ner_tag_size / 2))
+                items = np.zeros(int(self.ner_tag_size))
                 for i in key[1]:
-                    items[int(self.necessary_data["ner_tag"][i + "_B"] / 2)] = dict[key[0]][i]
+                    items[int(self.necessary_data["ner_tag"][i])] = dict[key[0]][i]
                 dict_temp[key[0]] = items / np.sum(items)
             else:
                 dict_temp[key[0]] = index
