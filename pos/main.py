@@ -155,7 +155,9 @@ if __name__ == '__main__':
     model.build_model()
 
     # tensorflow session 생성 및 초기화
-    sess = tf.Session()
+    gpu_options = tf.GPUOptions(allow_growth=True)
+    config = tf.ConfigProto(gpu_options=gpu_options)
+    sess = tf.Session(config=config)
     sess.run(tf.global_variables_initializer())
 
     # 학습
