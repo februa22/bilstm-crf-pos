@@ -43,7 +43,7 @@ class Model:
 
     def _build_placeholder(self):
         self.morph = tf.placeholder(tf.int32, [None, None])
-        self.ne_dict = tf.placeholder(tf.float32, [None, None, int(self.parameter["n_class"] / 2)])
+        self.ne_dict = tf.placeholder(tf.float32, [None, None, int(self.parameter["n_class"])])
         self.character = tf.placeholder(tf.int32, [None, None, None])
         self.dropout_rate = tf.placeholder(tf.float32)
         self.sequence = tf.placeholder(tf.int32, [None])

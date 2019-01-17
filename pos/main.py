@@ -146,6 +146,7 @@ if __name__ == '__main__':
     dev_data = load_data(devset_filepath)
 
     # 가져온 문장별 데이터셋을 이용해서 각종 정보 및 학습셋 구성
+    os.makedirs(parameter['output_dir'], exist_ok=True)
     dataset = Dataset(parameter, train_data + dev_data)
 
     # Model 불러오기
