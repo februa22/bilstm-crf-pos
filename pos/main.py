@@ -25,11 +25,11 @@ def iteration_model(model, dataset, parameter, train=True):
     total_labels = 0.0
     for morph, ne_dict, character, seq_len, char_len, label, step in dataset.get_data_batch_size(parameter["batch_size"], train):
         feed_dict = {model.morph: morph,
-                    model.ne_dict: ne_dict,
-                    model.character: character,
-                    model.sequence: seq_len,
-                    model.character_len: char_len,
-                    model.dropout_rate: parameter["keep_prob"]}
+                     model.ne_dict: ne_dict,
+                     model.character: character,
+                     model.sequence: seq_len,
+                     model.character_len: char_len,
+                     model.dropout_rate: parameter["keep_prob"]}
 
         if train:
             feed_dict[model.label] = label
@@ -37,6 +37,9 @@ def iteration_model(model, dataset, parameter, train=True):
         else:
             feed_dict[model.dropout_rate] = 1.0
             cost, tf_viterbi_sequence = sess.run([model.cost, model.viterbi_sequence], feed_dict=feed_dict)
+            print(f'[INPUT] {morph[0]}')
+            print(f'[OUTPUT] {tf_viterbi_sequence[0]}')
+            print(f'[TARGET] {label[0]}')
         avg_cost += cost
 
         mask = (np.expand_dims(np.arange(parameter["sentence_length"]), axis=0) <
