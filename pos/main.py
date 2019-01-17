@@ -24,18 +24,18 @@ def iteration_model(model, dataset, parameter, train=True):
     avg_correct = 0.0
     total_labels = 0.0
     for morph, ne_dict, character, seq_len, char_len, label, step in dataset.get_data_batch_size(parameter["batch_size"], train):
-        feed_dict = { model.morph : morph,
-                      model.ne_dict : ne_dict,
-                      model.character : character,
-                      model.sequence : seq_len,
-                      model.character_len : char_len,
-                      model.label : label,
-                      model.dropout_rate : parameter["keep_prob"]
-                    }
+        feed_dict = {model.morph: morph,
+                    model.ne_dict: ne_dict,
+                    model.character: character,
+                    model.sequence: seq_len,
+                    model.character_len: char_len,
+                    model.dropout_rate: parameter["keep_prob"]}
 
         if train:
+            feed_dict[model.label] = label
             cost, tf_viterbi_sequence, _ = sess.run([model.cost, model.viterbi_sequence, model.train_op], feed_dict=feed_dict)
         else:
+            feed_dict[model.dropout_rate] = 1.0
             cost, tf_viterbi_sequence = sess.run([model.cost, model.viterbi_sequence], feed_dict=feed_dict)
         avg_cost += cost
 
@@ -159,10 +159,21 @@ if __name__ == '__main__':
 
     # 학습
     if parameter["mode"] == "train":
+        devset = Dataset(parameter, dev_data)
+        devset.make_input_data()
+
         dataset.make_input_data(train_data)
+        f1_best = -1
         for epoch in range(parameter["epochs"]):
             avg_cost, avg_correct, precision_count, recall_count = iteration_model(model, dataset, parameter)
             print('[Epoch: {:>4}] cost = {:>.6} Accuracy = {:>.6}'.format(epoch + 1, avg_cost, avg_correct))
-            f1Measure, precision, recall = calculation_measure(precision_count, recall_count)
-            print('[Train] F1Measure : {:.6f} Precision : {:.6f} Recall : {:.6f}'.format(f1Measure, precision, recall))
-            save(sess, parameter['output_dir'])
+            f1_train, precision, recall = calculation_measure(precision_count, recall_count)
+            print('[Train] F1Measure : {:.6f} Precision : {:.6f} Recall : {:.6f}'.format(f1_train, precision, recall))
+
+            avg_cost, avg_correct, precision_count, recall_count = iteration_model(model, devset, parameter)
+            f1_dev, precision, recall = calculation_measure(precision_count, recall_count)
+            print('[Eval] F1Measure : {:.6f} Precision : {:.6f} Recall : {:.6f}'.format(f1_dev, precision, recall))
+
+            if f1_dev >= f1_best:
+                save(sess, parameter['output_dir'])
+                f1_best = f1_dev
