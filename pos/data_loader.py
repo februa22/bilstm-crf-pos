@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-
 import os
+
 
 def _read_data_file(file_path, train=True):
     sentences = []
@@ -19,21 +19,38 @@ def _read_data_file(file_path, train=True):
                 sentence[2].append(ner_tag)
             else:
                 sentence[2].append("-")
-
     return sentences
+
 
 def test_data_loader(root_path):
     # [ idx, ejeols, nemed_entitis ] each sentence
     file_path = os.path.join(root_path, 'test', 'test_data')
-
     return _read_data_file(file_path, False)
 
 
 def data_loader(root_path):
     # [ idx, ejeols, nemed_entitis ] each sentence
     file_path = os.path.join(root_path, 'train', 'train_data')
-
     return _read_data_file(file_path)
+
+
+def load_train_data(root_path):
+    # [ idx, ejeols, nemed_entitis ] each sentence
+    file_path = os.path.join(root_path, 'train_data')
+    return _read_data_file(file_path)
+
+
+def load_dev_data(root_path):
+    # [ idx, ejeols, nemed_entitis ] each sentence
+    file_path = os.path.join(root_path, 'dev_data')
+    return _read_data_file(file_path)
+
+
+def load_test_data(root_path):
+    # [ idx, ejeols, nemed_entitis ] each sentence
+    file_path = os.path.join(root_path, 'test_data')
+    return _read_data_file(file_path)
+
 
 if __name__ == "__main__":
     sentences = data_loader("data")

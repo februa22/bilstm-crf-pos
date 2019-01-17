@@ -8,6 +8,7 @@ import tensorflow as tf
 
 from dataset_batch import Dataset
 from data_loader import data_loader
+from data_loader import load_train_data
 from evaluation import calculation_measure
 from evaluation import diff_model_label
 from evaluation import get_ner_bi_tag_list_in_sentence
@@ -138,10 +139,10 @@ if __name__ == '__main__':
 
     # 전체 데이터셋 가져옴
     DATASET_PATH = 'data'
-    extern_data = []
+    train_data = load_train_data(DATASET_PATH)
 
     # 가져온 문장별 데이터셋을 이용해서 각종 정보 및 학습셋 구성
-    dataset = Dataset(parameter, extern_data)
+    dataset = Dataset(parameter, train_data)
 
     # Model 불러오기
     model = Model(dataset.parameter)
@@ -153,8 +154,7 @@ if __name__ == '__main__':
 
     # 학습
     if parameter["mode"] == "train":
-        extern_data = data_loader(DATASET_PATH)
-        dataset.make_input_data(extern_data)
+        dataset.make_input_data(train_data)
         for epoch in range(parameter["epochs"]):
             avg_cost, avg_correct, precision_count, recall_count = iteration_model(model, dataset, parameter)
             print('[Epoch: {:>4}] cost = {:>.6} Accuracy = {:>.6}'.format(epoch + 1, avg_cost, avg_correct))
