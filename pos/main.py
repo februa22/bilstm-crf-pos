@@ -179,5 +179,6 @@ if __name__ == '__main__':
             print('[Eval] F1Measure : {:.6f} Precision : {:.6f} Recall : {:.6f}'.format(f1_dev, precision, recall))
 
             if f1_dev >= f1_best:
+                print('Saving model checkpoint...')
                 save(sess, parameter['output_dir'])
                 f1_best = f1_dev
