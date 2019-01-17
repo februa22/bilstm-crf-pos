@@ -68,7 +68,13 @@ def get_ner_tag_list_by_numeric(reverse_tag, result, max_len):
 
 
 def get_pos_tags(reverse_vocab, result, max_len):
-    return [reverse_vocab[tag_id] for tag_id in result[:max_len]]
+    tags = []
+    for i, tag_id in enumerate(result[:max_len]):
+        if tag_id == 0:
+            continue
+        tag = reverse_vocab[tag_id]
+        tags.append(f'{str(i)}:{tag}')
+    return tags
 
 
 def get_ner_tag_list_by_string(results):

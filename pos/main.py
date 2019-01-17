@@ -38,9 +38,6 @@ def iteration_model(model, dataset, parameter, train=True):
             feed_dict[model.dropout_rate] = 1.0
             tf_viterbi_sequence = sess.run(model.viterbi_sequence, feed_dict=feed_dict)
             cost = 0.0
-            print(f'[INPUT] {morph[0]}')
-            print(f'[OUTPUT] {tf_viterbi_sequence[0]}')
-            print(f'[TARGET] {label[0]}')
         avg_cost += cost
 
         mask = (np.expand_dims(np.arange(parameter["sentence_length"]), axis=0) <
