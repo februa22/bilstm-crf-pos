@@ -36,7 +36,8 @@ def iteration_model(model, dataset, parameter, train=True):
             cost, tf_viterbi_sequence, _ = sess.run([model.cost, model.viterbi_sequence, model.train_op], feed_dict=feed_dict)
         else:
             feed_dict[model.dropout_rate] = 1.0
-            cost, tf_viterbi_sequence = sess.run([model.cost, model.viterbi_sequence], feed_dict=feed_dict)
+            tf_viterbi_sequence = sess.run(model.viterbi_sequence, feed_dict=feed_dict)
+            cost = 0.0
             print(f'[INPUT] {morph[0]}')
             print(f'[OUTPUT] {tf_viterbi_sequence[0]}')
             print(f'[TARGET] {label[0]}')
@@ -53,7 +54,7 @@ def iteration_model(model, dataset, parameter, train=True):
             print('[Train step: {:>4}] cost = {:>.9} Accuracy = {:>.6}'.format(step + 1, avg_cost / (step+1), 100.0 * avg_correct / float(total_labels)))
         else:
             if step % 100 == 0:
-                print('[Test step: {:>4}] cost = {:>.9} Accuracy = {:>.6}'.format(step + 1, avg_cost / (step + 1), 100.0 * avg_correct / float(total_labels)))
+                print('[Eval step: {:>4}] Accuracy = {:>.6}'.format(step + 1, 100.0 * avg_correct / float(total_labels)))
 
     return avg_cost / (step+1), 100.0 * avg_correct / float(total_labels), precision_count, recall_count
 
@@ -173,7 +174,7 @@ if __name__ == '__main__':
             f1_train, precision, recall = calculation_measure(precision_count, recall_count)
             print('[Train] F1Measure : {:.6f} Precision : {:.6f} Recall : {:.6f}'.format(f1_train, precision, recall))
 
-            avg_cost, avg_correct, precision_count, recall_count = iteration_model(model, devset, parameter)
+            _, _, precision_count, recall_count = iteration_model(model, devset, parameter, train=False)
             f1_dev, precision, recall = calculation_measure(precision_count, recall_count)
             print('[Eval] F1Measure : {:.6f} Precision : {:.6f} Recall : {:.6f}'.format(f1_dev, precision, recall))
 
