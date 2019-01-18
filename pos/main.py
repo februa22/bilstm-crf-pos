@@ -2,6 +2,7 @@
 import argparse
 import os
 import sys
+import time
 
 import numpy as np
 import tensorflow as tf
@@ -74,26 +75,25 @@ def load(sess, dir_name):
     print('model loaded!')
 
 
-def infer(sess, input, **kwargs):
+def infer(sess, inputs, **kwargs):
     pred = []
 
     # 학습용 데이터셋 구성
-    dataset.parameter["train_lines"] = len(input)
-    dataset.make_input_data(input)
+    dataset.parameter["train_lines"] = len(inputs)
+    dataset.make_input_data(inputs)
     reverse_tag = {v: k for k, v in dataset.necessary_data["ner_tag"].items()}
 
     # 테스트 셋을 측정한다.
-    for morph, ne_dict, character, seq_len, char_len, _, step in dataset.get_data_batch_size(len(input), False):
-        feed_dict = { model.morph : morph,
-                        model.ne_dict : ne_dict,
-                        model.character : character,
-                        model.sequence : seq_len,
-                        model.character_len : char_len,
-                        model.dropout_rate : 1.0
-                    }
+    for morph, ne_dict, character, seq_len, char_len, _, step in dataset.get_data_batch_size(dataset.parameter["batch_size"], False):
+        feed_dict = {model.morph: morph,
+                     model.ne_dict: ne_dict,
+                     model.character: character,
+                     model.sequence: seq_len,
+                     model.character_len: char_len,
+                     model.dropout_rate: 1.0}
 
         viters = sess.run(model.viterbi_sequence, feed_dict=feed_dict)
-        for index, viter in zip(range(0, len(viters)), viters):
+        for index, viter in enumerate(viters):
             pred.append(get_ner_bi_tag_list_in_sentence(reverse_tag, viter, seq_len[index]))
 
     # 최종 output 포맷 예시
@@ -181,3 +181,12 @@ if __name__ == '__main__':
                 print('Saving model checkpoint...')
                 save(sess, parameter['output_dir'])
                 f1_best = f1_dev
+    elif parameter["mode"] == "evaluate":
+        load(sess, parameter["output_dir"])
+        test_data = load_data(testset_filepath)
+        dataset.make_input_data(test_data)
+        start_time = time.time()
+        _, _, precision_count, recall_count = iteration_model(model, dataset, parameter, train=False)
+        print("Elapsed Time: %5.5f" % (time.time() - start_time))
+        f1_dev, precision, recall = calculation_measure(precision_count, recall_count)
+        print('[Test] F1Measure : {:.6f} Precision : {:.6f} Recall : {:.6f}'.format(f1_dev, precision, recall))

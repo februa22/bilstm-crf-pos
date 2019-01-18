@@ -175,7 +175,8 @@ class Dataset:
 
             ner_tag_list = ['O'] * seq_len
             for index, ne in enumerate(sentence[2]):
-                ner_tag.append(ne.split("_")[0])
+                # ne = ne.split("_")[0]
+                ner_tag.append(ne)
                 ner_tag_list[index] = ne
 
             yield morphs, tags, ner_tag, ner_mor_list, ner_tag_list
