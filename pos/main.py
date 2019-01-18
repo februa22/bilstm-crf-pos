@@ -24,6 +24,7 @@ def iteration_model(model, dataset, parameter, train=True):
     avg_cost = 0.0
     avg_correct = 0.0
     total_labels = 0.0
+    start_time = time.time()
     for morph, ne_dict, character, seq_len, char_len, label, step in dataset.get_data_batch_size(parameter["batch_size"], train):
         feed_dict = {model.morph: morph,
                      model.ne_dict: ne_dict,
@@ -31,7 +32,7 @@ def iteration_model(model, dataset, parameter, train=True):
                      model.sequence: seq_len,
                      model.character_len: char_len,
                      model.dropout_rate: parameter["keep_prob"]}
-
+        
         if train:
             feed_dict[model.label] = label
             cost, tf_viterbi_sequence, _ = sess.run([model.cost, model.viterbi_sequence, model.train_op], feed_dict=feed_dict)
@@ -52,7 +53,11 @@ def iteration_model(model, dataset, parameter, train=True):
             print('[Train step: {:>4}] cost = {:>.9} Accuracy = {:>.6}'.format(step + 1, avg_cost / (step+1), 100.0 * avg_correct / float(total_labels)))
         else:
             if step % 100 == 0:
-                print('[Eval step: {:>4}] Accuracy = {:>.6}'.format(step + 1, 100.0 * avg_correct / float(total_labels)))
+                print('[Eval step: {:>4}] Accuracy = {:>.6} per 1 sentence = {:>.9} ms'.format(
+                    step + 1,
+                    100.0 * avg_correct / float(total_labels),
+                    float(time.time() - start_time) / parameter["batch_size"] / 100 * 1000))
+                start_time = time.time()
 
     return avg_cost / (step+1), 100.0 * avg_correct / float(total_labels), precision_count, recall_count
 
@@ -68,8 +73,11 @@ def load(sess, dir_name):
 
     ckpt = tf.train.get_checkpoint_state(dir_name)
     if ckpt and ckpt.model_checkpoint_path:
-        checkpoint = os.path.basename(ckpt.model_checkpoint_path)
-        saver.restore(sess, os.path.join(dir_name, checkpoint))
+        # checkpoint = os.path.basename(ckpt.model_checkpoint_path)
+        # saver.restore(sess, os.path.join(dir_name, checkpoint))
+        path = ckpt.model_checkpoint_path
+        print(f"Restoring checkpoint {path}")
+        saver.restore(sess, path)
     else:
         raise ValueError('No checkpoint!')
     print('model loaded!')
