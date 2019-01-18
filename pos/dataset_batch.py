@@ -137,18 +137,12 @@ class Dataset:
         self.labels = np.array(labels)
 
     def get_data_batch_size(self, n, train=True):
-        if train:
-            for i, step in enumerate(range(0, self.parameter["train_lines"], n)):
-                if len(self.morphs[step:step + n]) == n:
-                    yield self.morphs[step:step+n], self.ne_dicts[step:step+n], self.characters[step:step+n], \
-                        self.sequence_lengths[step:step+n], self.character_lengths[step:step+n], \
-                        self.labels[step:step+n], i
-        else:
-            for i, step in enumerate(range(0, self.parameter["train_lines"], n)):
-                if len(self.morphs[step:step+n]) == n:
-                    yield self.morphs[step:step+n], self.ne_dicts[step:step+n], self.characters[step:step+n], \
-                        self.sequence_lengths[step:step+n], self.character_lengths[step:step+n], \
-                        self.labels[step:step+n], i
+        stop = min(self.parameter["train_lines"], len(self.morphs))
+        for i, step in enumerate(range(0, stop, n)):
+            if len(self.morphs[step:step + n]) == n:
+                yield self.morphs[step:step+n], self.ne_dicts[step:step+n], self.characters[step:step+n], \
+                    self.sequence_lengths[step:step+n], self.character_lengths[step:step+n], \
+                    self.labels[step:step+n], i
 
     def _search_index_by_dict(self, dict, key):
         if key in dict:
